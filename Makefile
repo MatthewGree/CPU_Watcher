@@ -1,28 +1,86 @@
+# SHELL SECTION
+RM := rm -rf
+
+# PRETTY PRINTS SECTION
+define print_cc
+	$(if $(Q), @echo "[CC]        $(1)")
+endef
+
+define print_bin
+	$(if $(Q), @echo "[BIN]       $(1)")
+endef
+
+define print_rm
+    $(if $(Q), @echo "[RM]        $(1)")
+endef
+
+
+# PROJECT TREE
 SDIR := ./src
 IDIR := ./inc
 ADIR := ./app
 
-SRC := $(wildcard $(SDIR)/*c)
+# FILES
+SRC := $(wildcard $(SDIR)/*.c)
+
 ASRC := $(SRC) $(wildcard $(ADIR)/*.c)
 AOBJ := $(ASRC:%.c=%.o)
+OBJ := $(AOBJ)
 
+DEPS := $(OBJ:%.o=%.d)
+
+# EXEC
 EXEC := main.out
 
-CC ?= clang
-C_FLAGS := -Wall -Wextra -Wpedantic
+# COMPILATOR SECTION
+
+# By default use gcc
+CC ?= gcc
+
+C_FLAGS := -Wall -Wextra
+
+DEP_FLAGS := -MMD -MP
 
 H_INC := $(foreach d, $(IDIR), -I$d)
 
-ifeq ($(CC), clang)
+ifeq ($(CC),clang)
 	C_FLAGS += -Weverything
+else ifneq (, $(filter $(CC), cc gcc))
+	C_FLAGS += -rdynamic
 endif
 
+ifeq ("$(origin O)", "command line")
+	OPT := -O$(O)
+else
+	OPT := -O3
+endif
+
+ifeq ("$(origin G)", "command line")
+	GGDB := -ggdb$(G)
+else
+	GGDB :=
+endif
+
+C_FLAGS += $(OPT) $(GGDB) $(DEP_FLAGS)
+
 all: $(EXEC)
-	./$(EXEC)
 
 $(EXEC): $(AOBJ)
-	$(CC) $(CFLAGS) $(H_INC) $(AOBJ) -o $(EXEC)
+	$(call print_bin,$@)
+	$(CC) $(C_FLAGS) $(H_INC) $(AOBJ) -o $@
+
+%.o:%.c %.d
+	$(call print_cc,$<)
+	$(CC) $(C_FLAGS) $(H_INC) -c $< -o $@
 
 clean:
-	rm $(EXEC) $(AOBJ)
+	$(call print_rm,EXEC)
+	$(RM) $(EXEC)
+	$(call print_rm,OBJ)
+	$(RM) $(OBJ)
+	$(call print_rm,DEPS)
+	$(RM) $(DEPS)
 
+$(DEPS):
+
+include $(wildcard $(DEPS))
