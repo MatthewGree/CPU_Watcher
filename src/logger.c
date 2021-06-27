@@ -27,7 +27,7 @@ void logger_destroy(logger *logger) {
   free(logger);
 }
 
-int runLogger(void *logger_void) {
+static int logger_runLogger(void *logger_void) {
   logger *logger = logger_void;
   FILE *file = fopen(logger->filename, "w");
   if (!file) {
@@ -38,20 +38,22 @@ int runLogger(void *logger_void) {
     char *toPrint = queue_string_dequeue(logger->input);
     if (!toPrint) {
       fprintf(file, "Logger finished job\n");
-      thrd_exit(0);
+      break;
     }
     fprintf(file, "%s\n", toPrint);
   }
   fclose(file);
-  return 0;
+  thrd_exit(0);
 }
 
 int logger_createThread(thrd_t *thread, logger *logger) {
-  return thrd_create(thread, &runLogger, logger);
+  return thrd_create(thread, &logger_runLogger, logger);
 }
 
 void logger_printLog(logger *logger, char *msg) {
-  queue_string_enqueue(logger->input, msg);
+  if (logger->input) {
+    queue_string_enqueue(logger->input, msg);
+  }
 }
 
 queue_string *logger_getInput(logger *logger) { return logger->input; }
