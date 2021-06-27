@@ -50,10 +50,8 @@ int logger_createThread(thrd_t *thread, logger *logger) {
   return thrd_create(thread, &runLogger, logger);
 }
 
-void printLog(logger *logger, char *msg) {
+void logger_printLog(logger *logger, char *msg) {
   queue_string_enqueue(logger->input, msg);
 }
 
-queue_string* logger_getInput(logger *logger) {
-  return logger->input;
-}
+queue_string *logger_getInput(logger *logger) { return logger->input; }
