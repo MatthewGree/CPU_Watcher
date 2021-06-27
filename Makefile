@@ -19,6 +19,7 @@ endef
 SDIR := ./src
 IDIR := ./inc
 ADIR := ./app
+STD := -std=c17
 
 # FILES
 SRC := $(wildcard $(SDIR)/*.c)
@@ -38,6 +39,8 @@ EXEC := main.out
 CC ?= gcc
 
 C_FLAGS := -Wall -Wextra
+
+L_FLAGS := -lpthread -lrt
 
 DEP_FLAGS := -MMD -MP
 
@@ -67,11 +70,11 @@ all: $(EXEC)
 
 $(EXEC): $(AOBJ)
 	$(call print_bin,$@)
-	$(CC) $(C_FLAGS) $(H_INC) $(AOBJ) -o $@
+	$(CC) $(STD) $(C_FLAGS) $(H_INC) $(L_FLAGS) $(AOBJ) -o $@
 
 %.o:%.c %.d
 	$(call print_cc,$<)
-	$(CC) $(C_FLAGS) $(H_INC) -c $< -o $@
+	$(CC) $(STD) $(C_FLAGS) $(H_INC) -c $< -o $@
 
 clean:
 	$(call print_rm,EXEC)
