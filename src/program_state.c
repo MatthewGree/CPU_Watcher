@@ -4,7 +4,7 @@
 program_state *program_state_create(bool initValue) {
   program_state *toReturn = malloc(sizeof(program_state));
   if (toReturn) {
-    toReturn->isRunning = initValue;
+    atomic_store(&toReturn->isRunning, initValue);
   }
   return toReturn;
 }

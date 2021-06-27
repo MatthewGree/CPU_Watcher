@@ -2,11 +2,12 @@
 #define PROGRAM_STATE_H
 
 #include <stdbool.h>
+#include <stdatomic.h>
 
 typedef struct program_state program_state;
 
 struct program_state {
-  _Atomic(bool) isRunning;
+  atomic_bool isRunning;
 };
 
 program_state *program_state_create(bool initValue);
