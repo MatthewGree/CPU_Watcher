@@ -4,6 +4,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+struct logger {
+  queue_string *input;
+  char *filename;
+};
+
 logger *logger_create(unsigned int queueCapacity, char *filename) {
   logger *toReturn = malloc(sizeof(logger));
   if (toReturn) {
@@ -47,4 +52,8 @@ int logger_createThread(thrd_t *thread, logger *logger) {
 
 void printLog(logger *logger, char *msg) {
   queue_string_enqueue(logger->input, msg);
+}
+
+queue_string* logger_getInput(logger *logger) {
+  return logger->input;
 }
