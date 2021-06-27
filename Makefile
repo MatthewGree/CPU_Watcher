@@ -19,7 +19,7 @@ endef
 SDIR := ./src
 IDIR := ./inc
 ADIR := ./app
-STD := -std=c17
+STD :=--std=c11
 
 # FILES
 SRC := $(wildcard $(SDIR)/*.c)
@@ -48,8 +48,8 @@ H_INC := $(foreach d, $(IDIR), -I$d)
 
 ifeq ($(CC),clang)
 	C_FLAGS += -Weverything
-else ifneq (, $(filter $(CC), cc gcc))
-	C_FLAGS += -rdynamic
+else ifeq ($(CC),gcc)
+	C_FLAGS += -Wpedantic
 endif
 
 ifeq ("$(origin O)", "command line")
@@ -70,11 +70,11 @@ all: $(EXEC)
 
 $(EXEC): $(AOBJ)
 	$(call print_bin,$@)
-	$(CC) $(STD) $(C_FLAGS) $(H_INC) $(L_FLAGS) $(AOBJ) -o $@
+	$(CC) $(C_FLAGS) $(H_INC) $(L_FLAGS) $(AOBJ) $(STD) -o $@
 
 %.o:%.c %.d
 	$(call print_cc,$<)
-	$(CC) $(STD) $(C_FLAGS) $(H_INC) -c $< -o $@
+	$(CC) $(C_FLAGS) $(H_INC) $(STD) -c $< -o $@
 
 clean:
 	$(call print_rm,EXEC)
