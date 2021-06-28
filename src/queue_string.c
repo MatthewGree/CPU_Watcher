@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <threads.h>
 #include <string.h>
+#include <stdio.h>
 
 struct queue_string {
   mtx_t mutex; // used to allow only one enqueue or dequeue operation at the
@@ -35,9 +36,17 @@ void queue_string_destroy(queue_string *ptr) {
 }
 
 void queue_string_enqueue(queue_string *ptr, char *string) {
+  char *copy = 0;
+  if (string) {
+    copy = malloc(sizeof(char) * (strlen(string) + 1));
+    if (!copy) {
+      perror("QUEUE: malloc not working");
+    }
+    strcpy(copy, string);
+  }
   sem_wait(&ptr->semaphore_enqueue);
   mtx_lock(&ptr->mutex);
-  ptr->baseArray[ptr->curSize] = string;
+  ptr->baseArray[ptr->curSize] = copy;
   ptr->curSize++;
   mtx_unlock(&ptr->mutex);
   sem_post(&ptr->semaphore_dequeue);
