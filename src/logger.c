@@ -5,14 +5,14 @@
 #include <string.h>
 
 struct logger {
-  queue_string *input;
+  queue *input;
   char *filename;
 };
 
 logger *logger_create(unsigned int queueCapacity, char *filename) {
   logger *toReturn = malloc(sizeof(logger));
   if (toReturn) {
-    toReturn->input = queue_string_create(queueCapacity);
+    toReturn->input = queue_create(queueCapacity, sizeof(char));
     if (!toReturn->input) {
       free(toReturn);
       return 0;
@@ -23,7 +23,7 @@ logger *logger_create(unsigned int queueCapacity, char *filename) {
 }
 
 void logger_destroy(logger *logger) {
-  queue_string_destroy(logger->input);
+  queue_destroy(logger->input);
   free(logger);
 }
 
@@ -35,7 +35,7 @@ static int logger_runLogger(void *logger_void) {
     return 1;
   }
   while (true) {
-    char *toPrint = queue_string_dequeue(logger->input);
+    char *toPrint = queue_dequeue(logger->input);
     if (!toPrint) {
       fprintf(file, "Logger finished job\n");
       break;
@@ -52,7 +52,11 @@ int logger_createThread(thrd_t *thread, logger *logger) {
 }
 
 void logger_printLog(logger *logger, char *msg) {
-  queue_string_enqueue(logger->input, msg);
+  if (msg) {
+    queue_enqueue(logger->input, msg, strlen(msg)+1);
+  } else {
+    queue_enqueue(logger->input, msg, 0);
+  }
 }
 
-queue_string *logger_getInput(logger *logger) { return logger->input; }
+queue *logger_getInput(logger *logger) { return logger->input; }

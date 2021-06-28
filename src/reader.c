@@ -13,7 +13,7 @@
 #define READER_STAT_FILE "/proc/stat"
 
 struct reader {
-  queue_string *output;
+  queue *output;
   logger *logger;
   program_state *state;
 };
@@ -30,7 +30,7 @@ reader *reader_create(logger *logger, program_state *state) {
 
 void reader_destroy(reader *reader) { free(reader); }
 
-bool reader_setOutput(reader *reader, queue_string *output) {
+bool reader_setOutput(reader *reader, queue *output) {
   if (reader->output) {
     return false;
   } else {
@@ -105,7 +105,7 @@ static int reader_runReader(void *reader_void) {
                         "READER: Unable to open /proc/stat, exiting...");
         thrd_exit(1);
       }
-      queue_string_enqueue(reader->output, stats);
+      queue_enqueue(reader->output, stats, strlen(stats)+1);
       if (i < READER_NUM_OF_SAMPLES - 1) {
         thrd_sleep(
             &(struct timespec){.tv_sec = READER_SAMPLING_WAIT_SECONDS,
