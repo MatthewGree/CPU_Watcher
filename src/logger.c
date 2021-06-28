@@ -41,6 +41,7 @@ static int logger_runLogger(void *logger_void) {
       break;
     }
     fprintf(file, "%s\n", toPrint);
+    free(toPrint);
   }
   fclose(file);
   thrd_exit(0);
@@ -51,9 +52,7 @@ int logger_createThread(thrd_t *thread, logger *logger) {
 }
 
 void logger_printLog(logger *logger, char *msg) {
-  if (logger->input) {
-    queue_string_enqueue(logger->input, msg);
-  }
+  queue_string_enqueue(logger->input, msg);
 }
 
 queue_string *logger_getInput(logger *logger) { return logger->input; }
