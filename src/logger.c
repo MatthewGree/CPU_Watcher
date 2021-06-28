@@ -47,7 +47,7 @@ static int logger_runLogger(void *logger_void) {
   thrd_exit(0);
 }
 
-int logger_createThread(thrd_t *thread, logger *logger) {
+int logger_createThread(logger *logger, thrd_t *thread) {
   return thrd_create(thread, &logger_runLogger, logger);
 }
 
