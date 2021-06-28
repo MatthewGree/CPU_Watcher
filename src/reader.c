@@ -123,7 +123,7 @@ static int reader_runReader(void *reader_void) {
             &(struct timespec){.tv_sec = 0, .tv_nsec = 0});
       }
     }
-    queue_enqueue(reader->output, allSamples, strlen(allSamples) + 1);
+    queue_enqueue(reader->output, allSamples, strlen(allSamples) + 1, 0);
     sprintf(logMessage, "READER: finished sending a set of information");
     logger_printLog(reader->logger, logMessage);
   }

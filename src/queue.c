@@ -37,10 +37,10 @@ void queue_destroy(queue *ptr) {
   free(ptr);
 }
 
-void queue_enqueue(queue *ptr, const void *elem, size_t unit_count) {
+void queue_enqueue(queue *ptr, const void *elem, size_t unit_count, size_t additionalSize) {
   char *copy = 0;
   if (elem) {
-    size_t copySize = ptr->unitSize * unit_count;
+    size_t copySize = ptr->unitSize * unit_count + additionalSize;
     copy = malloc(copySize);
     if (!copy) {
       perror("QUEUE: malloc not working");
@@ -55,6 +55,7 @@ void queue_enqueue(queue *ptr, const void *elem, size_t unit_count) {
   mtx_unlock(&ptr->mutex);
   sem_post(&ptr->semaphore_dequeue);
 }
+
 
 void *queue_dequeue(queue *ptr) {
   sem_wait(&ptr->semaphore_dequeue);

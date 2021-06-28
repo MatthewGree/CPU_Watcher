@@ -53,9 +53,9 @@ int logger_createThread(thrd_t *thread, logger *logger) {
 
 void logger_printLog(logger *logger, char *msg) {
   if (msg) {
-    queue_enqueue(logger->input, msg, strlen(msg)+1);
+    queue_enqueue(logger->input, msg, strlen(msg)+1, 0);
   } else {
-    queue_enqueue(logger->input, msg, 0);
+    queue_enqueue(logger->input, msg, 0, 0);
   }
 }
 
