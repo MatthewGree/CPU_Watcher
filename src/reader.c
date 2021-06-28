@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <stdnoreturn.h>
 
 #define READER_LINE_SIZE 100
 #define READER_SAMPLING_WAIT_NANOSECONDS 500000000
@@ -76,20 +77,25 @@ static unsigned short int calculateNumOfProperLines(FILE *file) {
   return properLines;
 }
 
+noreturn static void reader_cleanUp(reader* reader, int exitCode) {
+  queue_enqueue(reader->output, 0, 0, 0);
+  thrd_exit(exitCode);
+}
+
 static int reader_runReader(void *reader_void) {
   reader *reader = reader_void;
   FILE *cpuStats = fopen(READER_STAT_FILE, "r");
   if (!cpuStats) {
     logger_printLog(reader->logger,
                     "READER: Unable to open /proc/stat, exiting...");
-    thrd_exit(1);
+    reader_cleanUp(reader, 1);
   }
   unsigned short int properLines = calculateNumOfProperLines(cpuStats);
   fclose(cpuStats);
   if (!properLines) {
     logger_printLog(reader->logger,
                     "READER: File not valid, at least 2 lines expected");
-    thrd_exit(1);
+    reader_cleanUp(reader, 1);
   }
   char logMessage[READER_LOG_MSG_SIZE];
   sprintf(logMessage, "READER: initialized, found %d cores", properLines - 1);
@@ -102,8 +108,7 @@ static int reader_runReader(void *reader_void) {
   if (!stats || !allSamples) {
     logger_printLog(reader->logger,
                     "READER: not enough storage on heap, exiting");
-    queue_enqueue(reader->output, 0, 0);
-    thrd_exit(1);
+    reader_cleanUp(reader, 1);
   }
 
   logger_printLog(reader->logger, "READER: entering main loop");
@@ -113,7 +118,7 @@ static int reader_runReader(void *reader_void) {
       if (!reader_getData(cpuStats, properLines, stats)) {
         logger_printLog(reader->logger,
                         "READER: Unable to open /proc/stat, exiting...");
-        thrd_exit(1);
+        reader_cleanUp(reader, 1);
       }
       strcat(allSamples, stats);
       if (i < READER_NUM_OF_SAMPLES - 1) {
@@ -130,8 +135,7 @@ static int reader_runReader(void *reader_void) {
   }
   free(stats);
   free(allSamples);
-
-  thrd_exit(0);
+  reader_cleanUp(reader, 0);
 }
 
 int reader_createThread(reader *reader, thrd_t *thread) {
