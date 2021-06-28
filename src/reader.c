@@ -1,4 +1,5 @@
 #include <reader.h>
+#include <common.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -116,7 +117,7 @@ static int reader_runReader(void *reader_void) {
       }
       strcat(allSamples, stats);
       if (i < READER_NUM_OF_SAMPLES - 1) {
-        strcat(allSamples, READER_STATS_DELIMITER);
+        strcat(allSamples, COMMON_STATS_DELIMITER);
         thrd_sleep(
             &(struct timespec){.tv_sec = READER_SAMPLING_WAIT_SECONDS,
                                .tv_nsec = READER_SAMPLING_WAIT_NANOSECONDS},

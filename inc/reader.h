@@ -7,7 +7,6 @@
 #include <stdbool.h>
 #include <threads.h>
 
-#define READER_STATS_DELIMITER "|"
 
 typedef struct reader reader;
 
