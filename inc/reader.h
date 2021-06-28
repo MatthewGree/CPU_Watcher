@@ -7,8 +7,14 @@
 #include <stdbool.h>
 #include <threads.h>
 
+#define READER_STATS_DELIMITER "|"
+
 typedef struct reader reader;
 
+/*
+   creates a reader with input queue to which only strings
+   should be written
+ */
 reader *reader_create(logger *logger, program_state *state);
 void reader_destroy(reader *reader);
 bool reader_setOutput(reader *reader, queue *output);

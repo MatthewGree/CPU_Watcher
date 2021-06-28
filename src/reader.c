@@ -4,8 +4,7 @@
 #include <string.h>
 #include <time.h>
 
-#define READER_LINE_SIZE 256
-#define READER_STATS_SIZE 2048
+#define READER_LINE_SIZE 100
 #define READER_SAMPLING_WAIT_NANOSECONDS 500000000
 #define READER_SAMPLING_WAIT_SECONDS 0
 #define READER_NUM_OF_SAMPLES 2
@@ -31,7 +30,7 @@ reader *reader_create(logger *logger, program_state *state) {
 void reader_destroy(reader *reader) { free(reader); }
 
 bool reader_setOutput(reader *reader, queue *output) {
-  if (reader->output) {
+  if (reader->output || !output) {
     return false;
   } else {
     reader->output = output;
@@ -92,30 +91,44 @@ static int reader_runReader(void *reader_void) {
     thrd_exit(1);
   }
   char logMessage[READER_LOG_MSG_SIZE];
-  sprintf(logMessage, "Reader initialized, found %d cores", properLines - 1);
+  sprintf(logMessage, "READER: initialized, found %d cores", properLines - 1);
   logger_printLog(reader->logger, logMessage);
 
-  char stats[READER_STATS_SIZE] = "";
+  char *stats = malloc(sizeof(char) * properLines * READER_LINE_SIZE);
+  char *allSamples = malloc(sizeof(char) * properLines * READER_LINE_SIZE *
+                            READER_NUM_OF_SAMPLES);
 
+  if (!stats || !allSamples) {
+    logger_printLog(reader->logger,
+                    "READER: not enough storage on heap, exiting");
+    queue_enqueue(reader->output, 0, 0);
+    thrd_exit(1);
+  }
+
+  logger_printLog(reader->logger, "READER: entering main loop");
   while (atomic_load(&reader->state->isRunning)) {
-    logger_printLog(reader->logger, "entering Reader loop");
+    allSamples[0] = 0;
     for (int i = 0; i < READER_NUM_OF_SAMPLES; i++) {
       if (!reader_getData(cpuStats, properLines, stats)) {
         logger_printLog(reader->logger,
                         "READER: Unable to open /proc/stat, exiting...");
         thrd_exit(1);
       }
-      queue_enqueue(reader->output, stats, strlen(stats)+1);
+      strcat(allSamples, stats);
       if (i < READER_NUM_OF_SAMPLES - 1) {
+        strcat(allSamples, READER_STATS_DELIMITER);
         thrd_sleep(
             &(struct timespec){.tv_sec = READER_SAMPLING_WAIT_SECONDS,
                                .tv_nsec = READER_SAMPLING_WAIT_NANOSECONDS},
             &(struct timespec){.tv_sec = 0, .tv_nsec = 0});
       }
     }
-    sprintf(logMessage, "Reader finished sending a set of information");
+    queue_enqueue(reader->output, allSamples, strlen(allSamples) + 1);
+    sprintf(logMessage, "READER: finished sending a set of information");
     logger_printLog(reader->logger, logMessage);
   }
+  free(stats);
+  free(allSamples);
 
   thrd_exit(0);
 }
