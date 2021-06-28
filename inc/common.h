@@ -11,8 +11,7 @@ struct cpuLoads {
   double loads[];
 };
 
-cpuLoads* cpuLoads_create(size_t size);
-void cpuLoads_destroy(cpuLoads* loads);
-
+cpuLoads *cpuLoads_create(size_t size);
+void cpuLoads_destroy(cpuLoads *loads);
 
 #endif

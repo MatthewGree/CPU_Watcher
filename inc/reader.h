@@ -7,7 +7,6 @@
 #include <stdbool.h>
 #include <threads.h>
 
-
 typedef struct reader reader;
 
 /*

@@ -1,10 +1,10 @@
-#include <reader.h>
 #include <common.h>
+#include <reader.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdnoreturn.h>
 #include <string.h>
 #include <time.h>
-#include <stdnoreturn.h>
 
 #define READER_LINE_SIZE 100
 #define READER_SAMPLING_WAIT_NANOSECONDS 500000000
@@ -77,7 +77,7 @@ static unsigned short int calculateNumOfProperLines(FILE *file) {
   return properLines;
 }
 
-noreturn static void reader_cleanUp(reader* reader, int exitCode) {
+noreturn static void reader_cleanUp(reader *reader, int exitCode) {
   queue_enqueue(reader->output, 0, 0, 0);
   thrd_exit(exitCode);
 }

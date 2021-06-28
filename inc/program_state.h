@@ -1,8 +1,8 @@
 #ifndef PROGRAM_STATE_H
 #define PROGRAM_STATE_H
 
-#include <stdbool.h>
 #include <stdatomic.h>
+#include <stdbool.h>
 
 typedef struct program_state program_state;
 

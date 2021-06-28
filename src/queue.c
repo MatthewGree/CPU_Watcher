@@ -1,9 +1,9 @@
 #include <queue.h>
 #include <semaphore.h>
-#include <stdlib.h>
-#include <threads.h>
-#include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <threads.h>
 
 struct queue {
   mtx_t mutex; // used to allow only one enqueue or dequeue operation at the
@@ -13,11 +13,11 @@ struct queue {
   unsigned int capacity;
   unsigned int curSize;
   size_t unitSize;
-  void* baseArray[]; //FAM
+  void *baseArray[]; // FAM
 };
 
 queue *queue_create(unsigned int elementCount, size_t unitSize) {
-  queue *toReturn = malloc(sizeof(queue) + elementCount * sizeof(void*));
+  queue *toReturn = malloc(sizeof(queue) + elementCount * sizeof(void *));
 
   if (toReturn) {
     toReturn->capacity = elementCount;
@@ -37,7 +37,8 @@ void queue_destroy(queue *ptr) {
   free(ptr);
 }
 
-void queue_enqueue(queue *ptr, const void *elem, size_t unit_count, size_t additionalSize) {
+void queue_enqueue(queue *ptr, const void *elem, size_t unit_count,
+                   size_t additionalSize) {
   char *copy = 0;
   if (elem) {
     size_t copySize = ptr->unitSize * unit_count + additionalSize;
@@ -56,13 +57,12 @@ void queue_enqueue(queue *ptr, const void *elem, size_t unit_count, size_t addit
   sem_post(&ptr->semaphore_dequeue);
 }
 
-
 void *queue_dequeue(queue *ptr) {
   sem_wait(&ptr->semaphore_dequeue);
   mtx_lock(&ptr->mutex);
   void *toReturn = ptr->baseArray[0];
   ptr->curSize--;
-  memmove(ptr->baseArray, &ptr->baseArray[1], sizeof(void*) * ptr->curSize);
+  memmove(ptr->baseArray, &ptr->baseArray[1], sizeof(void *) * ptr->curSize);
   mtx_unlock(&ptr->mutex);
   sem_post(&ptr->semaphore_enqueue);
   return toReturn;

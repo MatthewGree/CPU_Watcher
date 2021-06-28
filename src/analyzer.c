@@ -2,14 +2,24 @@
 #include <common.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <stdnoreturn.h>
-
+#include <string.h>
 
 #define ANALYZER_QUEUE_SIZE 1
-#define ANALYZER_LINE_TOKEN_LENGTH 11 //from specification of /proc/stat
+#define ANALYZER_LINE_TOKEN_LENGTH 11 // from specification of /proc/stat
 
-enum statIndexes{User, Nice, System, Idle, Iowait, Irq, Softirq, Steal, Guest, Guest_nice};
+enum statIndexes {
+  User,
+  Nice,
+  System,
+  Idle,
+  Iowait,
+  Irq,
+  Softirq,
+  Steal,
+  Guest,
+  Guest_nice
+};
 
 struct analyzer {
   queue *output;
@@ -43,11 +53,9 @@ bool analyzer_setOutput(analyzer *analyzer, queue *output) {
     return true;
   }
 }
-queue *analyzer_getInput(analyzer *analyzer) {
-  return analyzer->input;
-}
+queue *analyzer_getInput(analyzer *analyzer) { return analyzer->input; }
 
-noreturn static void analyzer_cleanUp(analyzer* analyzer, int exitCode) {
+noreturn static void analyzer_cleanUp(analyzer *analyzer, int exitCode) {
   queue_enqueue(analyzer->output, 0, 0, 0);
   thrd_exit(exitCode);
 }
@@ -64,10 +72,11 @@ static size_t analyzer_getNumberOfLines(char *string) {
   return count;
 }
 
-static void analyzer_splitString(char* string, char **lines, size_t numberOfLines, char* delim) {
+static void analyzer_splitString(char *string, char **lines,
+                                 size_t numberOfLines, char *delim) {
   char *saveptr = 0;
   size_t index = 0;
-  char* line = __strtok_r(string, delim, &saveptr);
+  char *line = __strtok_r(string, delim, &saveptr);
   while (line != 0 && index != numberOfLines) {
     lines[index] = line;
     index++;
@@ -76,21 +85,23 @@ static void analyzer_splitString(char* string, char **lines, size_t numberOfLine
   return;
 }
 
-static unsigned long analyzer_q_strtoul(char* string) {
-  return strtoul(string, &(char*){0}, 10);
+static unsigned long analyzer_q_strtoul(char *string) {
+  return strtoul(string, &(char *){0}, 10);
 }
 
-static void analyzer_calculateActiveAndIdle(char *line, unsigned long *idle, unsigned long *active) {
+static void analyzer_calculateActiveAndIdle(char *line, unsigned long *idle,
+                                            unsigned long *active) {
   char *tokenizedLine[ANALYZER_LINE_TOKEN_LENGTH];
   analyzer_splitString(line, tokenizedLine, ANALYZER_LINE_TOKEN_LENGTH, " ");
-  unsigned long numbers[ANALYZER_LINE_TOKEN_LENGTH-1];
+  unsigned long numbers[ANALYZER_LINE_TOKEN_LENGTH - 1];
 
-  for (size_t i = 0; i < ANALYZER_LINE_TOKEN_LENGTH-1; i++) {
-    numbers[i] = analyzer_q_strtoul(tokenizedLine[i+1]);
+  for (size_t i = 0; i < ANALYZER_LINE_TOKEN_LENGTH - 1; i++) {
+    numbers[i] = analyzer_q_strtoul(tokenizedLine[i + 1]);
   }
 
   *idle = numbers[Idle] + numbers[Iowait];
-  *active = numbers[User] + numbers[Nice] + numbers[System] + numbers[Irq] + numbers[Softirq] + numbers[Steal];
+  *active = numbers[User] + numbers[Nice] + numbers[System] + numbers[Irq] +
+            numbers[Softirq] + numbers[Steal];
 }
 
 static double analyzer_calculateLoad(char *prevLine, char *nextLine) {
@@ -106,13 +117,12 @@ static double analyzer_calculateLoad(char *prevLine, char *nextLine) {
 
   unsigned long diffTotal = nextTotal - prevTotal;
   unsigned long diffIdle = nextIdle - prevIdle;
-  return (100.0 * (double)(diffTotal - diffIdle))/((double) diffTotal);
+  return (100.0 * (double)(diffTotal - diffIdle)) / ((double)diffTotal);
 }
 
 static int analyzer_runAnalyzer(void *analyzer_void) {
   analyzer *analyzer = analyzer_void;
-  logger_printLog(analyzer->logger,
-                  "ANALYZER: entering main loop");
+  logger_printLog(analyzer->logger, "ANALYZER: entering main loop");
   while (true) {
     char *samples = queue_dequeue(analyzer->input);
     if (!samples) {
@@ -132,13 +142,12 @@ static int analyzer_runAnalyzer(void *analyzer_void) {
       continue;
     }
     printf("Number of lines: %zu", numberOfLines);
-    char** prevLines = malloc(sizeof(char*) * numberOfLines);
-    char** nextLines = malloc(sizeof(char*) * numberOfLines);
-    cpuLoads* loads = cpuLoads_create(numberOfLines);
+    char **prevLines = malloc(sizeof(char *) * numberOfLines);
+    char **nextLines = malloc(sizeof(char *) * numberOfLines);
+    cpuLoads *loads = cpuLoads_create(numberOfLines);
 
     if (!prevLines || !nextLines || !loads) {
-      logger_printLog(analyzer->logger,
-                      "ANALYZER: malloc failed, exiting");
+      logger_printLog(analyzer->logger, "ANALYZER: malloc failed, exiting");
       free(samples);
       analyzer_cleanUp(analyzer, 1);
     }
@@ -150,9 +159,11 @@ static int analyzer_runAnalyzer(void *analyzer_void) {
       loads->loads[i] = analyzer_calculateLoad(prevLines[i], nextLines[i]);
     }
 
-    logger_printLog(analyzer->logger, "ANALYZER: Calculated loads, sending to output");
+    logger_printLog(analyzer->logger,
+                    "ANALYZER: Calculated loads, sending to output");
 
-    queue_enqueue(analyzer->output, loads, 1, sizeof(loads->loads[0]) * numberOfLines);
+    queue_enqueue(analyzer->output, loads, 1,
+                  sizeof(loads->loads[0]) * numberOfLines);
 
     free(prevLines);
     free(nextLines);
