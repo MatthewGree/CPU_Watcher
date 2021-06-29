@@ -12,6 +12,8 @@ printer *printer_create(logger *logger);
 void printer_destroy(printer *printer);
 // input accepts cpuLoads from common.h
 queue *printer_getInput(printer *printer);
+// output should accept bool*
+bool printer_setOutput(printer *printer, queue* output);
 int printer_createThread(printer *printer, thrd_t *thread);
 
 #endif
