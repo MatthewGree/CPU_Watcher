@@ -9,4 +9,9 @@ program_state *program_state_create(bool initValue) {
   return toReturn;
 }
 
-void program_state_destroy(program_state *ptr) { free(ptr); }
+void program_state_destroy(program_state *ptr) {
+  if (ptr) {
+    free(ptr);
+  }
+}
+

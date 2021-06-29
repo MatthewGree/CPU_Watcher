@@ -23,8 +23,10 @@ logger *logger_create(unsigned int queueCapacity, char *filename) {
 }
 
 void logger_destroy(logger *logger) {
-  queue_destroy(logger->input);
-  free(logger);
+  if (logger) {
+    queue_destroy(logger->input);
+    free(logger);
+  }
 }
 
 static int logger_runLogger(void *logger_void) {

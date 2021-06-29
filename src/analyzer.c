@@ -44,8 +44,10 @@ analyzer *analyzer_create(logger *logger) {
   return toReturn;
 }
 void analyzer_destroy(analyzer *analyzer) {
-  queue_destroy(analyzer->input);
-  free(analyzer);
+  if (analyzer) {
+    queue_destroy(analyzer->input);
+    free(analyzer);
+  }
 }
 
 bool analyzer_setOutput(analyzer *analyzer, queue *output) {

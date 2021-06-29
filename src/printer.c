@@ -31,8 +31,10 @@ printer *printer_create(logger *logger) {
 }
 
 void printer_destroy(printer *printer) {
-  queue_destroy(printer->input);
-  free(printer);
+  if (printer) {
+    queue_destroy(printer->input);
+    free(printer);
+  }
 }
 
 queue *printer_getInput(printer *printer) { return printer->input; }
