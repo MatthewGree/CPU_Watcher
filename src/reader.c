@@ -146,7 +146,7 @@ static int reader_runReader(void *reader_void) {
 }
 
 int reader_createThread(reader *reader, thrd_t *thread) {
-  if (reader->output) {
+  if (reader && reader->output) {
     return thrd_create(thread, reader_runReader, reader);
   } else {
     return thrd_error;

@@ -50,7 +50,11 @@ static int logger_runLogger(void *logger_void) {
 }
 
 int logger_createThread(logger *logger, thrd_t *thread) {
-  return thrd_create(thread, &logger_runLogger, logger);
+  if (logger) {
+    return thrd_create(thread, &logger_runLogger, logger);
+  } else {
+    return thrd_error;
+  }
 }
 
 void logger_printLog(logger *logger, char *msg) {
