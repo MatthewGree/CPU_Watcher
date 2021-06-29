@@ -40,9 +40,9 @@ CC ?= gcc
 
 C_FLAGS := -Wall -Wextra
 
-L_FLAGS := -lpthread -lrt
+L_FLAGS := -lpthread -lrt -pthread
 
-DEP_FLAGS := -MMD -MP
+DEP_FLAGS := -MMD -MP -D_POSIX_C_SOURCE=200112L
 
 H_INC := $(foreach d, $(IDIR), -I$d)
 
