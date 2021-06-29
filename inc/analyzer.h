@@ -6,6 +6,9 @@
 #include <stdbool.h>
 #include <threads.h>
 
+// analyzer's thread assumes that it will receive a proper
+// part of /proc/stat in the form of char* on analyzer's input
+// sends to output analyzed data in form of cpuLoads
 typedef struct analyzer analyzer;
 
 analyzer *analyzer_create(logger *logger);

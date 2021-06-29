@@ -5,7 +5,9 @@
 #include <stdbool.h>
 
 typedef struct program_state program_state;
-
+/*
+ * used to hold variables defining program state
+ */
 struct program_state {
   atomic_bool isRunning;
 };

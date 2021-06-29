@@ -4,6 +4,10 @@
 #include <queue.h>
 #include <threads.h>
 
+
+/*
+ * prints every char* from input to filename
+ */
 typedef struct logger logger;
 
 logger *logger_create(unsigned int queueCapacity, char *filename);
