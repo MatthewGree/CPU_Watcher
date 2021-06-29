@@ -2,12 +2,9 @@
 #include <printer.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
+#include <time_helper.h>
 
 #define PRINTER_QUEUE_SIZE 1
-#define SEC_TO_NS(s) ((s)*1000000000)
-#define NS_DIV_SEC(ns) (ns / 1000000000)
-#define NS_MOD_SEC(ns) (ns % 1000000000)
 
 struct printer {
   queue *input;
@@ -39,18 +36,13 @@ void printer_destroy(printer *printer) {
 
 queue *printer_getInput(printer *printer) { return printer->input; }
 
-static long printer_nanosecondsTimeStamp() {
-  struct timespec t;
-  timespec_get(&t, TIME_UTC);
-  return SEC_TO_NS(t.tv_sec) + t.tv_nsec;
-}
 
 static inline void clearScreen() { system("clear"); }
 
 static int printer_runPrinter(void *printer_void) {
   printer *printer = printer_void;
   while (true) {
-    long startStamp = printer_nanosecondsTimeStamp();
+    long startStamp = time_helper_nanosecondsTimeStamp();
     cpuLoads *loads = queue_dequeue(printer->input);
     if (!loads) {
       logger_printLog(printer->logger, "PRINTER: Received null, exiting");
@@ -65,7 +57,7 @@ static int printer_runPrinter(void *printer_void) {
       }
     }
     cpuLoads_destroy(loads);
-    long diff = printer_nanosecondsTimeStamp() - startStamp;
+    long diff = time_helper_nanosecondsTimeStamp() - startStamp;
     long toSleep = SEC_TO_NS(1) - diff;
     if (toSleep > 0) {
       thrd_sleep(&(struct timespec){.tv_sec = NS_DIV_SEC(toSleep),
