@@ -3,6 +3,7 @@
 
 #include <stdatomic.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
 typedef struct program_state program_state;
 /*
@@ -13,6 +14,10 @@ struct program_state {
 };
 
 program_state *program_state_create(bool initValue);
-void program_state_destroy(program_state *ptr);
+inline void program_state_destroy(program_state *ptr) {
+  if (ptr) {
+    free(ptr);
+  }
+}
 
 #endif

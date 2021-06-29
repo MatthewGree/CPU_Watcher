@@ -6,6 +6,7 @@
 #include <queue.h>
 #include <stdbool.h>
 #include <threads.h>
+#include <stdlib.h>
 
 typedef struct reader reader;
 
@@ -14,7 +15,11 @@ typedef struct reader reader;
    should be written
  */
 reader *reader_create(logger *logger, program_state *state);
-void reader_destroy(reader *reader);
+inline void reader_destroy(reader *reader) {
+  if (reader) {
+    free(reader);
+  }
+}
 bool reader_setOutput(reader *reader, queue *output);
 int reader_createThread(reader *reader, thrd_t *thread);
 

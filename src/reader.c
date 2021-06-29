@@ -1,7 +1,6 @@
 #include <common.h>
 #include <reader.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <stdnoreturn.h>
 #include <string.h>
 #include <time.h>
@@ -32,11 +31,7 @@ reader *reader_create(logger *logger, program_state *state) {
   return toReturn;
 }
 
-void reader_destroy(reader *reader) {
-  if (reader) {
-    free(reader);
-  }
-}
+void reader_destroy(reader *);
 
 bool reader_setOutput(reader *reader, queue *output) {
   if (reader->output || !output) {
