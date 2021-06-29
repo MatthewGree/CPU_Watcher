@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <threads.h>
+#include <time_helper.h>
 
 struct queue {
   mtx_t mutex; // used to allow only one enqueue or dequeue operation at the
@@ -31,10 +32,12 @@ queue *queue_create(unsigned int elementCount, size_t unitSize) {
 }
 
 void queue_destroy(queue *ptr) {
-  mtx_destroy(&ptr->mutex);
-  sem_destroy(&ptr->semaphore_dequeue);
-  sem_destroy(&ptr->semaphore_enqueue);
-  free(ptr);
+  if (ptr) {
+    mtx_destroy(&ptr->mutex);
+    sem_destroy(&ptr->semaphore_dequeue);
+    sem_destroy(&ptr->semaphore_enqueue);
+    free(ptr);
+  }
 }
 
 void queue_enqueue(queue *ptr, const void *elem, size_t unit_count,
@@ -57,8 +60,7 @@ void queue_enqueue(queue *ptr, const void *elem, size_t unit_count,
   sem_post(&ptr->semaphore_dequeue);
 }
 
-void *queue_dequeue(queue *ptr) {
-  sem_wait(&ptr->semaphore_dequeue);
+static void *queue_mutexDequeue(queue *ptr) {
   mtx_lock(&ptr->mutex);
   void *toReturn = ptr->baseArray[0];
   ptr->curSize--;
@@ -66,4 +68,27 @@ void *queue_dequeue(queue *ptr) {
   mtx_unlock(&ptr->mutex);
   sem_post(&ptr->semaphore_enqueue);
   return toReturn;
+}
+
+void *queue_dequeue(queue *ptr) {
+  if (sem_wait(&ptr->semaphore_dequeue) != -1) {
+    return queue_mutexDequeue(ptr);
+  } else {
+    return 0;
+  }
+}
+
+void *queue_timedDequeue(queue *ptr, long nanoseconds, bool *success) {
+  struct timespec t;
+  timespec_get(&t, TIME_UTC);
+  int result = sem_timedwait(
+      &ptr->semaphore_dequeue,
+      &(struct timespec){.tv_sec = t.tv_sec + NS_DIV_SEC(nanoseconds),
+                         .tv_nsec = t.tv_nsec + NS_MOD_SEC(nanoseconds)});
+  if (result == -1) {
+    *success = false;
+    return 0;
+  }
+  *success = true;
+  return queue_mutexDequeue(ptr);
 }
