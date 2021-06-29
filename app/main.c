@@ -14,6 +14,9 @@
 #include <unistd.h>
 #include <watchdog.h>
 
+#define LOG_FILE "log_file.txt"
+#define LOGGER_CAPACITY 20
+
 static sem_t exitingSem;
 static atomic_bool intFlag = false;
 
@@ -40,7 +43,7 @@ int main() {
   }
   atomic_store(&intFlag, true);
   // setting up objects
-  logger *logger = logger_create(1, "output");
+  logger *logger = logger_create(LOGGER_CAPACITY, LOG_FILE);
   program_state *state = program_state_create(true);
   reader *reader = reader_create(logger, state);
   analyzer *analyzer = analyzer_create(logger);
