@@ -2,16 +2,13 @@
 #include <logger.h>
 #include <printer.h>
 #include <program_state.h>
-#include <queue.h>
 #include <reader.h>
 #include <semaphore.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <threads.h>
 #include <time.h>
-#include <unistd.h>
 #include <watchdog.h>
 
 #define LOG_FILE "log_file.txt"
