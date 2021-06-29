@@ -157,6 +157,7 @@ static int analyzer_runAnalyzer(void *analyzer_void) {
     for (size_t i = 0; i < numberOfLines; i++) {
       loads->loads[i] = analyzer_calculateLoad(prevLines[i], nextLines[i]);
     }
+    loads->size = numberOfLines;
 
     logger_printLog(analyzer->logger,
                     "ANALYZER: Calculated loads, sending to output");
@@ -169,7 +170,7 @@ static int analyzer_runAnalyzer(void *analyzer_void) {
     cpuLoads_destroy(loads);
     free(samples);
   }
-  thrd_exit(0);
+  analyzer_cleanUp(analyzer, 0);
 }
 
 int analyzer_createThread(analyzer *analyzer, thrd_t *thread) {
