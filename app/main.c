@@ -9,12 +9,37 @@
 #include <threads.h>
 #include <time.h>
 #include <stdlib.h>
+#include <semaphore.h>
+#include <signal.h>
+#include <unistd.h>
 
-#define NUM_OF_THREADS 4
-#define NUM_OF_OBJECTS 5
+
+
+static sem_t exitingSem;
+static atomic_bool intFlag = false;
+
+static void sigIntHandler(int signum) {
+  if (atomic_load(&intFlag)) {
+    sem_post(&exitingSem);
+    atomic_store(&intFlag, false);
+  }
+
+  if (signum == SIGINT) {
+    signal(signum, sigIntHandler);
+  }
+}
 
 int main() {
-
+  //setting up SIGTERM handling
+  if (sem_init(&exitingSem, 0, 0) == -1) {
+    printf("ERROR: semaphore not initialized, exiting");
+    thrd_exit(0);
+  }
+  if (signal(SIGINT, sigIntHandler) == SIG_ERR) {
+    printf("ERROR: signal handler not initialized, exiting");
+    thrd_exit(0);
+  }
+  atomic_store(&intFlag, true);
   // setting up objects
   logger *logger = logger_create(1, "output");
   program_state *state = program_state_create(true);
@@ -48,7 +73,8 @@ int main() {
   printer_createThread(printer, &printerThread);
 
   // waiting for program to finish
-  thrd_sleep(&(struct timespec){30, 0}, 0);
+  sem_wait(&exitingSem);
+  sem_destroy(&exitingSem);
 
   // finishing program
   logger_printLog(logger, "MAIN: finishing program");
@@ -71,5 +97,6 @@ int main() {
   program_state_destroy(state);
   analyzer_destroy(analyzer);
   printer_destroy(printer);
+  printf("PROGRAM EXITED\n");
   return 0;
 }
