@@ -37,7 +37,7 @@ static int logger_runLogger(void *logger_void) {
   while (true) {
     char *toPrint = queue_dequeue(logger->input);
     if (!toPrint) {
-      fprintf(file, "Logger finished job\n");
+      fprintf(file, "LOGGER: received null, exiting\n");
       break;
     }
     fprintf(file, "%s\n", toPrint);

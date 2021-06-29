@@ -141,7 +141,6 @@ static int analyzer_runAnalyzer(void *analyzer_void) {
       free(samples);
       continue;
     }
-    printf("Number of lines: %zu", numberOfLines);
     char **prevLines = malloc(sizeof(char *) * numberOfLines);
     char **nextLines = malloc(sizeof(char *) * numberOfLines);
     cpuLoads *loads = cpuLoads_create(numberOfLines);
@@ -170,7 +169,6 @@ static int analyzer_runAnalyzer(void *analyzer_void) {
     cpuLoads_destroy(loads);
     free(samples);
   }
-  printf("Analyzer exiting...");
   thrd_exit(0);
 }
 
