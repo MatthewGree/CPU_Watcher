@@ -64,6 +64,7 @@ static int printer_runPrinter(void *printer_void) {
         printf("CORE: %zu - %.2lf%%\n", i, loads->loads[i]);
       }
     }
+    cpuLoads_destroy(loads);
     long diff = printer_nanosecondsTimeStamp() - startStamp;
     long toSleep = SEC_TO_NS(1) - diff;
     if (toSleep > 0) {
