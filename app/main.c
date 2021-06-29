@@ -103,6 +103,7 @@ int main() {
   program_state_destroy(state);
   analyzer_destroy(analyzer);
   printer_destroy(printer);
+  watchdog_destroy(watchdog);
   printf("PROGRAM EXITED\n");
   return 0;
 }
