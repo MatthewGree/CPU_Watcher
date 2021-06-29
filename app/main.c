@@ -29,7 +29,7 @@ static void sigIntHandler(int signum) {
 }
 
 int main() {
-  // setting up SIGTERM handling
+  // setting up SIGINT handling
   if (sem_init(&exitingSem, 0, 0) == -1) {
     printf("ERROR: semaphore not initialized, exiting");
     thrd_exit(0);
