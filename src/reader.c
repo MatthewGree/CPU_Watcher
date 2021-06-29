@@ -121,7 +121,7 @@ static int reader_runReader(void *reader_void) {
   logger_printLog(reader->logger, "READER: entering main loop");
   while (atomic_load(&reader->state->isRunning)) {
     allSamples[0] = 0;
-    for (int i = 0; i < READER_NUM_OF_SAMPLES; i++) {
+    for (unsigned short int i = 0; i < READER_NUM_OF_SAMPLES; i++) {
       if (!reader_getData(cpuStats, properLines, stats)) {
         logger_printLog(reader->logger,
                         "READER: Unable to open /proc/stat, exiting...");
