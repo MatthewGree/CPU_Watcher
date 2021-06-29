@@ -20,6 +20,9 @@ struct reader {
 };
 
 reader *reader_create(logger *logger, program_state *state) {
+  if (!logger) {
+    return 0;
+  }
   reader *toReturn = malloc(sizeof(reader));
   if (toReturn) {
     toReturn->logger = logger;

@@ -15,6 +15,9 @@ struct printer {
 };
 
 printer *printer_create(logger *logger) {
+  if (!logger) {
+    return 0;
+  }
   printer *toReturn = malloc(sizeof(printer));
   if (toReturn) {
     toReturn->logger = logger;

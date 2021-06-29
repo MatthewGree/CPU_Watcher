@@ -28,6 +28,9 @@ struct analyzer {
 };
 
 analyzer *analyzer_create(logger *logger) {
+  if (!logger) {
+    return 0;
+  }
   analyzer *toReturn = malloc(sizeof(analyzer));
   if (toReturn) {
     toReturn->logger = logger;
