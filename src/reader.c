@@ -126,7 +126,7 @@ static int reader_runReader(void *reader_void) {
         thrd_sleep(
             &(struct timespec){.tv_sec = READER_SAMPLING_WAIT_SECONDS,
                                .tv_nsec = READER_SAMPLING_WAIT_NANOSECONDS},
-            &(struct timespec){.tv_sec = 0, .tv_nsec = 0});
+            0);
       }
     }
     queue_enqueue(reader->output, allSamples, strlen(allSamples) + 1, 0);

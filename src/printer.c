@@ -64,7 +64,7 @@ static int printer_runPrinter(void *printer_void) {
     if (toSleep > 0) {
       thrd_sleep(&(struct timespec){.tv_sec = NS_DIV_SEC(toSleep),
                                     .tv_nsec = NS_MOD_SEC(toSleep)},
-                 &(struct timespec){.tv_sec = 0, .tv_nsec = 0});
+                 0);
     }
   }
   thrd_exit(0);
