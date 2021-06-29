@@ -76,8 +76,6 @@ static int printer_runPrinter(void *printer_void) {
                  0);
     }
   }
-  queue_enqueue(printer->output, 0, 0, 0);
-  logger_printLog(printer->logger, "PRINTER: Sent null to output");
   thrd_exit(0);
 }
 

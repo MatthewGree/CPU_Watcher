@@ -92,6 +92,8 @@ int main() {
   logger_printLog(logger, " MAIN: analyzer came back");
   thrd_join(printerThread, 0);
   logger_printLog(logger, "MAIN: printer came back");
+  // sending null to watchdog to end it
+  queue_enqueue(watchdog_getInput(watchdog), 0, 0, 0);
   thrd_join(watchdogThread, 0);
   logger_printLog(logger, "MAIN: watchdog came back");
   logger_printLog(logger, 0);
