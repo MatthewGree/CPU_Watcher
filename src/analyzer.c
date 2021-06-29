@@ -152,6 +152,13 @@ static int analyzer_runAnalyzer(void *analyzer_void) {
 
     if (!prevLines || !nextLines || !loads) {
       logger_printLog(analyzer->logger, "ANALYZER: malloc failed, exiting");
+      void* objects[2] = {prevLines, nextLines};
+      for (size_t i = 0; i < 2; i++) {
+        if (!objects[i]) {
+          free(objects[i]);
+        }
+      }
+      cpuLoads_destroy(loads);
       free(samples);
       analyzer_cleanUp(analyzer, 1);
     }
